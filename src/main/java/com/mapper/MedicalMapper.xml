@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.MedicalDao">
+    <select id="findAll" resultType="medical" parameterType="int">
+        select * from exam.medical
+        <where>
+           <if test="sort != null">
+               sort = #{sort}
+           </if>
+        </where>
+    </select>
+    
+    <select id="medicalFindAllByPage" resultType="medical" parameterType="int">
+        select * from exam.medical
+        <where>
+            <if test="sort != null">
+                sort = #{sort}
+            </if>
+        </where>
+    </select>
+
+<!--    <select id="findOne" resultType="string">-->
+<!--        select sort from exam.medical-->
+<!--    </select>-->
+
+    <select id="medicalFindOne" parameterType="int" resultType="medical">
+        select * from exam.medical where id = #{id}
+    </select>
+
+    <delete id="medicalDelete" parameterType="int">
+        delete from exam.medical where id = #{id}
+    </delete>
+    <update id="medicalUpdate" parameterType="medical">
+        update exam.medical
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="whether != null">
+                whether = #{whether},
+            </if>
+            <if test="reference != null">
+                reference = #{reference},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="explainl != null">
+                explainl = #{explainl}
+            </if>
+    </set>
+    where id = #{id}
+    </update>
+   
+</mapper>

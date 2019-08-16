@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <settings>
+        <!-- 打印查询语句 -->
+        <setting name="logImpl" value="STDOUT_LOGGING" />
+    </settings>
+
+    <!-- 设置别名 -->
+    <typeAliases>
+        <!--
+            type 类型，包名+类名
+            alias 指定的别名
+        -->
+        <typeAlias type="com.pojo.Medical" alias="medical"></typeAlias>
+        <typeAlias type="com.pojo.Subject" alias="subject"></typeAlias>
+<!--        <typeAlias type="com.pojo.course" alias="course"></typeAlias>-->
+<!--        <typeAlias type="com.pojo.speaker" alias="speaker"></typeAlias>-->
+<!--        <typeAlias type="com.pojo.subject" alias="subject"></typeAlias>-->
+<!--        <typeAlias type="com.pojo.video" alias="video"></typeAlias>-->
+<!--        <typeAlias type="com.pojo.admin" alias="admin"></typeAlias>-->
+    </typeAliases>
+
+
+    <!--分页插件-->
+    <plugins>
+        <!-- com.github.pagehelper为PageHelper类所在包名 -->
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!-- 使用下面的方式配置参数，后面会有所有的参数介绍 -->
+            <property name="helperDialect" value="mysql"/>
+        </plugin>
+    </plugins>
+</configuration>

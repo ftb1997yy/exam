@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <title>讲师管理</title>
+    <style type="text/css">
+
+        #class {
+            padding-top: 10px;
+            margin-left: 10px;
+        }
+
+    </style>
+    <link rel="stylesheet" href="layui/css/layui.css"/>
+    <script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
+    <script type="text/javascript" src="layui/layui.js"></script>
+</head>
+
+<body>
+<div>
+    <div class="layui-form searchDiv" id="class">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <select name="sort" id="test2">
+                            <option value="">所属类别</option>
+                            <option value="体重">体重</option>
+                            <option value="内科检查">内科检查</option>
+                            <option value="dasd">dasd</option>
+                            <option value="大苏打">大苏打</option>
+                            <option value="大苏打">打算</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
+            <button type="button" class="layui-btn" data-type="reload">搜索</button>
+
+        </div>
+
+        <!--        <button type="button" class="layui-btn" onclick="add()">添加</button>-->
+    </div>
+    <table class="layui-hide" id="demo" lay-filter="test"></table>
+</div>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">更新</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script>
+    //一般直接写在一个js文件中
+    layui.use(['layer', 'form', 'table'], function () {
+        var layer = layui.layer,
+            form = layui.form, table = layui.table,
+            laypage = layui.laypage; //分页
+
+
+        // 下拉菜单绑定相应数据
+        $.ajax({
+            type: "get",
+            url: "medical/find.do",
+            dataType: "json",
+            success: function (data) {
+                if (data.code == 1) {
+                    var infos = data.info;
+                    $(infos).each(function () {
+                        var html = '<option value="' + this.sort + '">' + this.sort + '</option>'
+                        $("#test2").append($(html));
+                    })
+                    form.render();
+                } else {
+                    alert(data.info);
+                }
+            }
+        });
+
+        //执行一个 table 实例
+        table.render({
+            elem: '#demo'  // table标签的id
+            //,height: 420
+            , id: "medicalList"
+            , url: 'medical/page.do' //数据接口  跨域
+            , page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                //,curr: 5 //设定初始在第 5 页
+                , groups: 3 //只显示 1 个连续页码
+                , first: false //不显示首页
+                , last: false //不显示尾页
+                , limit: 10
+                , limits: [5, 10, 15]
+
+            } //开启分页
+            , cols: [[ //表头
+                {field: 'id', title: '序号', width: 80, sort: true, fixed: 'left'}
+                , {field: 'name', title: '名字', width: 200, sort: true}
+                , {field: 'sort', title: '所属类别', width: 650}
+                , {field: 'whether', title: '是否必查', width: 90, sort: true}
+                , {field: 'reference', title: '参考值', width: 200, sort: true}
+                , {field: 'price', title: '价格', width: 200, sort: true}
+                , {field: 'explainl', title: '说明', width: 200, sort: true}
+
+
+                , {fixed: 'right', width: 165, align: 'center', toolbar: '#barDemo'}
+            ]]
+        });
+        var active = {
+            reload: function () {
+                //执行重载
+                table.reload('medicalList', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: { // 额外需要提交的参数
+
+                        sort: $("#test2").val(),
+                    }
+                });
+            }
+        };
+
+        $('.searchDiv .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    obj.del(); //删除对应行（tr）的DOM结构
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    $.ajax({
+                        type: "get",
+                        url: "medical/delete.do?id=" + data.id,
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.code == 1) {
+                                table.reload('demo');
+                            } else {
+                                alert(data.info);
+                            }
+                        }
+                    })
+                });
+            } else if (layEvent === 'edit') {
+                //layer.msg('编辑操作');
+                layer.open({
+                    type: 2 //此处以iframe举例
+                    , title: '修改讲师信息'
+                    , area: ['600px', '600px']
+                    , content: 'medicalUpdate.html?id=' + data.id
+                })
+            }
+        });
+    })
+
+</script>
+
+<!--<script type="text/javascript">-->
+<!--    function add() {-->
+<!--        layer.open({-->
+<!--            type: 2 //此处以iframe举例-->
+<!--            , title: '添加讲师信息'-->
+<!--            , area: ['450px', '450px']-->
+<!--            , content: 'medicalAdd.html'-->
+<!--        })-->
+<!--    }-->
+<!--</script>-->
+
+<script type="text/javascript">
+    function delInfo(id) {
+        $.ajax({
+            type: "get",
+            url: "delete.do?id=" + id,
+            dataType: "json",
+            success: function (data) {
+                if (data.code == 1) {
+                    loadData();
+                } else {
+                    alert(data.info);
+                }
+            }
+        })
+    }
+
+</script>
+
+</body>
+
+</html>
